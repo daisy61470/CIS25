@@ -2,7 +2,7 @@
 // C++ Basics: Advanced Classes - Constructors and Destructors
 // Daisy Schall
 // Program: Product class that shows how constructors and destructors
-//          manage the lifecycle of objects in C++.
+// manage the lifecycle of objects in C++.
 
 #include <iostream>
 #include <string>
