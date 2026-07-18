@@ -1,0 +1,160 @@
+#  MODULE 4 - Debugging, If Statements
+
+// CIS 25 - Module 4, Part 1
+// Topic: Debugging, if-statements
+// Task : Build a simple menu using if statements.
+
+// Design notes:
+//   * A single read of the option, validated with plain if / else-if chains
+//     (the construct this module teaches).
+//   * std::ios::sync_with_stdio(false) speeds up console I/O; the menu text is
+//     emitted in one streamed write to avoid repeated flushes.
+// ============================================================================
+#include <iostream>
+
+int main() {
+    std::ios::sync_with_stdio(false);   // faster, unbuffered-friendly console I/O
+
+    int choice = 0;
+
+    // One streamed write for the whole menu (fewer flushes than line-by-line).
+    std::cout << "===== MAIN MENU =====\n"
+                 "1. Say Hello\n"
+                 "2. Show Today's Special\n"
+                 "3. Show Store Hours\n"
+                 "4. Exit\n"
+                 "Choose an option: ";
+    std::cin >> choice;
+
+    // if / else-if chain: exactly one branch runs.
+    if (choice == 1) {
+        std::cout << "Hello, welcome to the shop!\n";
+    } else if (choice == 2) {
+        std::cout << "Today's special is fresh apple pie.\n";
+    } else if (choice == 3) {
+        std::cout << "We are open 9:00 AM to 6:00 PM.\n";
+    } else if (choice == 4) {
+        std::cout << "Goodbye!\n";
+    } else {
+        // Any value outside 1-4 (or bad input) lands here.
+        std::cout << "Invalid option. Please choose 1-4.\n";
+    }
+
+    return 0;
+}
+
+-------------------- CODE: part2highest.cpp --------------------
+
+
+//
+// Original buggy program (for reference):
+//   float n1 n2 n3,                       // no commas, stray trailing comma
+//   cin >> n1 > n1 > n3;                  // used > instead of >>, read n1 twice
+//   if(n1 = n2 && n1 >= n3)               // = (assignment) instead of ==
+//       cout << "Largest number: " << n1;
+//   if(n2 == n1 && n2 >= n3)              // separate ifs, not nested
+//   {   cout << "Largest number: " << n1; //   printed n1 in the n2 branch
+//   if(n3 >= n1 && n3 >= n2)
+//       cout << "Largest number: " << n2  // printed n2, missing semicolon
+//   }
+//
+// The nested form below finds the max in at most TWO comparisons.
+
+#include <iostream>
+
+int main() {
+    std::ios::sync_with_stdio(false);
+
+    // FIX: separate each variable with commas and drop the stray trailing comma
+    //      (original: "float n1 n2 n3,").
+    float n1, n2, n3;
+
+    std::cout << "Enter three numbers: ";
+
+    // FIX: use the extraction operator ">>" for every variable, and read into
+    //      n1, n2, n3 (original: "cin >> n1 > n1 > n3;" used ">" and read n1 twice).
+    std::cin >> n1 >> n2 >> n3;
+
+    // FIX: use "==" style comparison logic via nested ifs instead of "="
+    //      assignment (original: "if(n1 = n2 && n1 >= n3)").
+    if (n1 >= n2) {
+        // n1 is at least as big as n2; the winner is n1 or n3.
+        if (n1 >= n3) {
+            std::cout << "Largest number: " << n1 << '\n';
+        } else {
+            std::cout << "Largest number: " << n3 << '\n';
+        }
+    } else {
+        // n2 is bigger than n1; the winner is n2 or n3.
+        if (n2 >= n3) {
+            // FIX: print n2 here (original printed n1 inside the n2 branch).
+            std::cout << "Largest number: " << n2 << '\n';
+        } else {
+            // FIX: print n3 and terminate the statement with ";"
+            //      (original printed n2 and was missing its semicolon).
+            std::cout << "Largest number: " << n3 << '\n';
+        }
+    }
+
+    return 0;
+}
+
+-------------------- OUTPUT --------------------
+
+----- Part 1: Menu -----
+>> input: 1
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Hello, welcome to the shop!
+
+>> input: 2
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Today's special is fresh apple pie.
+
+>> input: 3
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: We are open 9:00 AM to 6:00 PM.
+
+>> input: 4
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Goodbye!
+
+>> input: 9
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Invalid option. Please choose 1-4.
+
+----- Part 2: Highest of three (nested if) -----
+>> input: 3 9 5
+Enter three numbers: Largest number: 9
+
+>> input: 10 2 7
+Enter three numbers: Largest number: 10
+
+>> input: 1 2 8
+Enter three numbers: Largest number: 8
+
+>> input: 4 4 4
+Enter three numbers: Largest number: 4
+
+>> input: -5 -1 -9
+Enter three numbers: Largest number: -1
+
