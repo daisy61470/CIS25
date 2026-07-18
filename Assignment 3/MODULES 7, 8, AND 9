@@ -1,0 +1,1315 @@
+
+#  CIS 25 HOMEWORK - MODULES 7, 8, AND 9
+
+
+Name:     Daisy Schall
+Course:   CIS 25 - C++ Programming
+Homework: Modules 7, 8, and 9
+Compiler: g++ (C++17), built with -Wall -Wextra, zero warnings
+
+SUBMISSION CONTENTS
+  1. Module 7 ... Code, Data, and Output
+                  Working with External Data in C++ (Kaggle dataset)
+  2. Module 8 ... Code and Output
+                  Structs, Pointers, Dynamic Arrays, Binary Search
+  3. Module 9 ... Code and Output
+                  Inheritance, Method Overriding, Access Control
+
+The complete Module 7 data file is uploaded separately as:
+  Module7_DataFile_nvidia_gpu_sales_synthetic_2026.txt
+
+
+
+#  MODULE 7 - WORKING WITH EXTERNAL DATA IN C++
+
+
+Name:     Daisy Schall
+Course:   CIS 25 - C++ Programming
+Homework: Modules 7, 8, and 9
+Compiler: g++ (C++17), built with -Wall -Wextra, zero warnings
+
+Dataset:  Nvidia GPU Sales Data 2026 (public, synthetic)
+Kaggle:   https://www.kaggle.com/datasets/uditjain13/nvidia-gpu-sales-synthetic-2026
+File:     nvidia_gpu_sales_synthetic_2026.csv
+          (submitted to Canvas as Module7_DataFile_nvidia_gpu_sales_synthetic_2026.txt;
+           the bytes are identical and the program accepts either name)
+Rows:     7000 data rows plus 1 header row
+Columns:  17 total; the program uses 7 of them (minimum required is 5)
+Loaded:   15 records (minimum required is 10)
+
+REQUIREMENT CHECKLIST
+  [x] Reads from the dataset file (.csv) using a class  -> class SalesDataset
+  [x] Loads at least 10 entries (rows)                  -> 15 loaded
+  [x] Extracts and uses at least 5 fields (columns)     -> 7 fields used
+  [x] Displays the information in a readable format     -> aligned table
+  [x] Comments explain the logic and the file structure -> throughout
+  [x] A copy of the data file is included               -> Module7_DataFile_nvidia_gpu_sales_synthetic_2026.txt
+
+FIELDS EXTRACTED FROM EACH ROW
+  [1]  sale_date                    [9]  msrp_usd
+  [2]  gpu_model                    [13] customer_satisfaction_score
+  [5]  region                       [16] revenue_usd
+  [8]  units_sold
+
+==============================================================================
+PART 1 OF 3:  CODE  (module7.cpp)
+==============================================================================
+
+// ============================================================================
+// MODULE 7: WORKING WITH EXTERNAL DATA IN C++
+// Course: CIS 25
+// Name:   Daisy Schall
+//
+// Dataset: "Nvidia GPU Sales Data 2026" (public, synthetic) from Kaggle
+// Source:  https://www.kaggle.com/datasets/uditjain13/nvidia-gpu-sales-synthetic-2026
+// File:    nvidia_gpu_sales_synthetic_2026.csv
+//
+// FILE STRUCTURE
+// --------------
+// The CSV has 1 header row followed by 7,000 data rows.
+// Every row holds 17 comma-separated fields, with no quoted values and no
+// embedded commas, so a simple getline(stream, field, ',') split is safe.
+//
+// Column order in the raw file:
+//   [0]  sale_id                     [9]  msrp_usd
+//   [1]  sale_date                   [10] avg_street_price_usd
+//   [2]  gpu_model                   [11] price_premium_pct
+//   [3]  gpu_family                  [12] stock_status
+//   [4]  launch_year                 [13] customer_satisfaction_score
+//   [5]  region                      [14] warranty_months
+//   [6]  sales_channel               [15] bundle_addon
+//   [7]  customer_segment            [16] revenue_usd
+//   [8]  units_sold
+//
+// FIELDS USED BY THIS PROGRAM (7 of 17; assignment requires at least 5)
+//   sale_date, gpu_model, region, units_sold, msrp_usd,
+//   customer_satisfaction_score, revenue_usd
+//
+// RECORDS LOADED: 15 (assignment requires at least 10)
+//
+// Data file accepted as either nvidia_gpu_sales_synthetic_2026.csv or
+// nvidia_gpu_sales_synthetic_2026.txt (identical bytes; Canvas requires .txt)
+//
+// Compile: g++ -std=c++17 -Wall module7.cpp -o module7
+// Run:     ./module7
+// ============================================================================
+
+#include <iostream>
+#include <fstream>    // ifstream, for reading the external .csv file
+#include <sstream>    // istringstream, for splitting one CSV line into fields
+#include <string>
+#include <vector>
+#include <iomanip>    // setw, fixed, setprecision, for the formatted table
+using namespace std;
+
+// ----------------------------------------------------------------------------
+// CLASS 1: GpuSale
+// Represents ONE row of the dataset. Data members are private so the raw values
+// can only be read through the public getters (encapsulation).
+// ----------------------------------------------------------------------------
+class GpuSale {
+private:
+    string saleDate;         // field [1]  e.g. "2024-01-12"
+    string gpuModel;         // field [2]  e.g. "RTX 4090"
+    string region;           // field [5]  e.g. "North America"
+    int    unitsSold;        // field [8]  integer count
+    double msrpUsd;          // field [9]  manufacturer suggested retail price
+    double satisfaction;     // field [13] customer rating, 1.0 to 5.0
+    double revenueUsd;       // field [16] total dollars for the sale
+
+public:
+    // Default constructor: gives every numeric member a safe starting value.
+    GpuSale()
+        : saleDate(""), gpuModel(""), region(""),
+          unitsSold(0), msrpUsd(0.0), satisfaction(0.0), revenueUsd(0.0) {}
+
+    // Parameterized constructor: builds a fully populated record.
+    GpuSale(const string& date, const string& model, const string& reg,
+            int units, double msrp, double score, double revenue)
+        : saleDate(date), gpuModel(model), region(reg),
+          unitsSold(units), msrpUsd(msrp), satisfaction(score),
+          revenueUsd(revenue) {}
+
+    // Getters. Marked const so they cannot modify the object.
+    string getSaleDate()     const { return saleDate; }
+    string getGpuModel()     const { return gpuModel; }
+    string getRegion()       const { return region; }
+    int    getUnitsSold()    const { return unitsSold; }
+    double getMsrpUsd()      const { return msrpUsd; }
+    double getSatisfaction() const { return satisfaction; }
+    double getRevenueUsd()   const { return revenueUsd; }
+
+    // Prints this single record as one aligned row of the output table.
+    void display() const {
+        cout << left  << setw(12) << saleDate
+             << left  << setw(20) << gpuModel
+             << left  << setw(26) << region
+             << right << setw(7)  << unitsSold
+             << right << setw(12) << fixed << setprecision(2) << msrpUsd
+             << right << setw(9)  << fixed << setprecision(1) << satisfaction
+             << right << setw(15) << fixed << setprecision(2) << revenueUsd
+             << endl;
+    }
+};
+
+// ----------------------------------------------------------------------------
+// CLASS 2: SalesDataset
+// Owns the collection of GpuSale objects and all the file handling logic.
+// ----------------------------------------------------------------------------
+class SalesDataset {
+private:
+    vector<GpuSale> records;    // every loaded row lives here
+    string headerLine;          // the raw header, kept for reference/printing
+
+    // Helper: chop one CSV line into its individual fields.
+    // The dataset has no quoted fields, so splitting on every comma is correct.
+    static vector<string> splitLine(const string& line, char delimiter = ',') {
+        vector<string> fields;
+        istringstream stream(line);
+        string field;
+        while (getline(stream, field, delimiter)) {
+            fields.push_back(field);
+        }
+        return fields;
+    }
+
+public:
+    // Reports whether a file can be opened for reading.
+    static bool fileExists(const string& filename) {
+        ifstream test(filename);
+        return test.good();
+    }
+
+    // Opens the data file, skips the header, and converts each data row into a
+    // GpuSale object. Stops once maxRecords rows have been stored.
+    // Returns false when the file cannot be opened.
+    bool loadFromFile(const string& filename, int maxRecords) {
+        ifstream inFile(filename);
+        if (!inFile) {
+            cerr << "ERROR: could not open \"" << filename << "\"" << endl;
+            return false;
+        }
+
+        // Row 1 of the file is the header, so read it away before the loop.
+        getline(inFile, headerLine);
+
+        string line;
+        while (records.size() < static_cast<size_t>(maxRecords)
+               && getline(inFile, line)) {
+
+            if (line.empty()) continue;               // guard against blank lines
+
+            vector<string> f = splitLine(line);
+            if (f.size() < 17) continue;              // guard against short rows
+
+            // Pull only the seven columns this program needs, converting the
+            // numeric ones from text to int/double.
+            GpuSale record(
+                f[1],              // sale_date
+                f[2],              // gpu_model
+                f[5],              // region
+                stoi(f[8]),        // units_sold
+                stod(f[9]),        // msrp_usd
+                stod(f[13]),       // customer_satisfaction_score
+                stod(f[16])        // revenue_usd
+            );
+            records.push_back(record);
+        }
+
+        inFile.close();                                // release the file handle
+        return true;
+    }
+
+    int getCount() const { return static_cast<int>(records.size()); }
+
+    // Prints the column headings, then every stored record.
+    void displayAll() const {
+        cout << string(101, '=') << endl;
+        cout << "  NVIDIA GPU SALES 2026  |  " << records.size()
+             << " records loaded from Kaggle CSV" << endl;
+        cout << string(101, '=') << endl;
+
+        cout << left  << setw(12) << "SALE DATE"
+             << left  << setw(20) << "GPU MODEL"
+             << left  << setw(26) << "REGION"
+             << right << setw(7)  << "UNITS"
+             << right << setw(12) << "MSRP (USD)"
+             << right << setw(9)  << "RATING"
+             << right << setw(15) << "REVENUE (USD)"
+             << endl;
+        cout << string(101, '-') << endl;
+
+        for (const GpuSale& record : records) {
+            record.display();
+        }
+        cout << string(101, '=') << endl;
+    }
+
+    // A short aggregate report proving the parsed numbers are usable as numbers.
+    void displaySummary() const {
+        if (records.empty()) return;
+
+        int    totalUnits   = 0;
+        double totalRevenue = 0.0;
+        double ratingSum    = 0.0;
+        GpuSale best        = records[0];   // record with the highest revenue
+
+        for (const GpuSale& record : records) {
+            totalUnits   += record.getUnitsSold();
+            totalRevenue += record.getRevenueUsd();
+            ratingSum    += record.getSatisfaction();
+            if (record.getRevenueUsd() > best.getRevenueUsd()) {
+                best = record;
+            }
+        }
+
+        double avgRating = ratingSum / records.size();
+
+        cout << "\nSUMMARY OF LOADED RECORDS" << endl;
+        cout << string(101, '-') << endl;
+        cout << "Total units sold ................ " << totalUnits << endl;
+        cout << "Total revenue ................... $" << fixed << setprecision(2)
+             << totalRevenue << endl;
+        cout << "Average satisfaction score ...... " << fixed << setprecision(2)
+             << avgRating << " / 5.0" << endl;
+        cout << "Highest revenue sale ............ " << best.getGpuModel()
+             << " in " << best.getRegion()
+             << " on " << best.getSaleDate()
+             << " ($" << fixed << setprecision(2) << best.getRevenueUsd() << ")"
+             << endl;
+        cout << string(101, '-') << endl;
+    }
+};
+
+// ----------------------------------------------------------------------------
+// MAIN
+// ----------------------------------------------------------------------------
+int main() {
+    const int MAX_RECORDS = 15;   // assignment minimum is 10
+
+    // Two accepted names for the same dataset. The original Kaggle download is
+    // a .csv, while the copy submitted to Canvas carries a .txt extension.
+    // The bytes are identical, so the program accepts whichever one is present.
+    const string CANDIDATES[] = {
+        "nvidia_gpu_sales_synthetic_2026.csv",
+        "nvidia_gpu_sales_synthetic_2026.txt"
+    };
+    const int NUM_CANDIDATES = 2;
+
+    string dataFile = "";
+    for (int i = 0; i < NUM_CANDIDATES; i++) {
+        if (SalesDataset::fileExists(CANDIDATES[i])) {
+            dataFile = CANDIDATES[i];
+            break;
+        }
+    }
+
+    if (dataFile.empty()) {
+        cerr << "ERROR: dataset not found." << endl;
+        cout << "Place " << CANDIDATES[0] << " (or " << CANDIDATES[1]
+             << ") in the same folder as the program." << endl;
+        return 1;
+    }
+
+    SalesDataset dataset;
+
+    // Attempt the load; stop the program cleanly if the file cannot be read.
+    if (!dataset.loadFromFile(dataFile, MAX_RECORDS)) {
+        return 1;
+    }
+
+    cout << "Successfully loaded " << dataset.getCount()
+         << " records from " << dataFile << "\n" << endl;
+
+    dataset.displayAll();      // requirement: display the data in a readable format
+    dataset.displaySummary();  // extra: proves the numeric fields parsed correctly
+
+    return 0;
+}
+
+==============================================================================
+PART 2 OF 3:  DATA
+==============================================================================
+
+The complete data file is submitted alongside this document as:
+    Module7_DataFile_nvidia_gpu_sales_synthetic_2026.txt
+
+Shown below: the header row plus the first 25 of 7000 data rows.
+
+sale_id,sale_date,gpu_model,gpu_family,launch_year,region,sales_channel,customer_segment,units_sold,msrp_usd,avg_street_price_usd,price_premium_pct,stock_status,customer_satisfaction_score,warranty_months,bundle_addon,revenue_usd
+1,2024-01-12,RTX 4090,Consumer Gaming,2022,Asia-Pacific (ex-China),Retail/Etail,Gaming,8,1599,1796.91,12.38,Low Stock,4.0,12,Software Bundle,14375.3
+2,2024-01-18,RTX 4070 Ti Super,Consumer Gaming,2024,Asia-Pacific (ex-China),System Integrator/OEM,Content Creation,34,799,964.7,20.74,Low Stock,5.0,12,None,32799.82
+3,2024-01-20,RTX 4080 Super,Consumer Gaming,2024,North America,Retail/Etail,Gaming,30,999,1308.25,30.96,Sold Out,4.0,12,None,39247.64
+4,2024-02-05,H100 SXM,Data Center AI,2022,Asia-Pacific (ex-China),Direct Enterprise,Crypto Mining,5,27000,29202.11,8.16,Low Stock,4.5,24,None,146010.54
+5,2024-02-16,H100 SXM,Data Center AI,2022,Europe,Cloud Provider,Crypto Mining,9,27000,27778.73,2.88,In Stock,4.5,36,None,250008.56
+6,2024-02-21,RTX 4080 Super,Consumer Gaming,2024,Asia-Pacific (ex-China),Retail/Etail,Gaming,8,999,1129.64,13.08,Low Stock,4.5,12,Extended Warranty,9037.13
+7,2024-02-21,RTX 4070 Ti Super,Consumer Gaming,2024,North America,System Integrator/OEM,Gaming,21,799,807.64,1.08,In Stock,5.0,12,Extended Warranty,16960.51
+8,2024-02-22,RTX 4070 Ti Super,Consumer Gaming,2024,China,Retail/Etail,Gaming,16,799,963.95,20.64,Low Stock,3.0,24,Software Bundle,15423.23
+9,2024-02-22,RTX 4090,Consumer Gaming,2022,Asia-Pacific (ex-China),Retail/Etail,Gaming,21,1599,1608.58,0.6,In Stock,4.5,24,None,33780.23
+10,2024-02-25,H100 SXM,Data Center AI,2022,North America,Direct Enterprise,Hyperscale Datacenter,7,27000,42442.55,57.19,Sold Out,4.0,24,None,297097.88
+11,2024-02-26,RTX 4080 Super,Consumer Gaming,2024,Rest of World,Retail/Etail,Gaming,28,999,1265.11,26.64,Sold Out,5.0,24,None,35423.08
+12,2024-02-26,RTX 4070 Ti Super,Consumer Gaming,2024,North America,Retail/Etail,Gaming,48,799,832.88,4.24,In Stock,4.5,24,Extended Warranty,39978.47
+13,2024-02-26,RTX 4080 Super,Consumer Gaming,2024,Rest of World,Retail/Etail,Gaming,26,999,1175.65,17.68,Low Stock,4.0,12,None,30566.94
+14,2024-02-28,RTX 4070 Ti Super,Consumer Gaming,2024,Asia-Pacific (ex-China),Retail/Etail,Gaming,27,799,810.94,1.49,In Stock,5.0,24,None,21895.31
+15,2024-03-01,RTX 4080 Super,Consumer Gaming,2024,Asia-Pacific (ex-China),Retail/Etail,Gaming,19,999,1200.13,20.13,Low Stock,4.5,24,None,22802.41
+16,2024-03-06,H200,Data Center AI,2024,North America,Direct Enterprise,Hyperscale Datacenter,13,35000,38696.08,10.56,Low Stock,4.5,24,Support Contract,503049.08
+17,2024-03-07,RTX 4080 Super,Consumer Gaming,2024,Asia-Pacific (ex-China),System Integrator/OEM,Content Creation,46,999,1063.28,6.43,In Stock,5.0,24,Cooling Kit,48910.85
+18,2024-03-08,H200,Data Center AI,2024,Europe,Cloud Provider,Hyperscale Datacenter,2,35000,41069.81,17.34,Low Stock,4.5,24,NVLink Cluster Install,82139.62
+19,2024-03-12,H100 SXM,Data Center AI,2022,North America,Cloud Provider,Hyperscale Datacenter,16,27000,27707.39,2.62,In Stock,5.0,24,None,443318.25
+20,2024-03-13,RTX 4090,Consumer Gaming,2022,Asia-Pacific (ex-China),System Integrator/OEM,Gaming,18,1599,1642.75,2.74,In Stock,4.5,12,None,29569.43
+21,2024-03-13,RTX 4070 Ti Super,Consumer Gaming,2024,Europe,Retail/Etail,Content Creation,12,799,946.02,18.4,Backordered,5.0,12,None,11352.21
+22,2024-03-15,RTX 4080 Super,Consumer Gaming,2024,China,Retail/Etail,Gaming,42,999,1077.2,7.83,In Stock,4.0,24,None,45242.43
+23,2024-03-16,H100 SXM,Data Center AI,2022,North America,Cloud Provider,AI Research/Startup,5,27000,32673.29,21.01,Low Stock,5.0,24,Support Contract,163366.47
+24,2024-03-21,RTX 4090,Consumer Gaming,2022,China,Retail/Etail,Gaming,21,1599,2118.4,32.48,Backordered,4.0,24,None,44486.39
+25,2024-03-23,RTX 4080 Super,Consumer Gaming,2024,North America,System Integrator/OEM,Content Creation,11,999,1339.14,34.05,Sold Out,3.5,36,Cooling Kit,14730.49
+... (6975 additional rows follow in the data file)
+
+==============================================================================
+PART 3 OF 3:  OUTPUT
+==============================================================================
+
+Successfully loaded 15 records from nvidia_gpu_sales_synthetic_2026.csv
+
+=====================================================================================================
+  NVIDIA GPU SALES 2026  |  15 records loaded from Kaggle CSV
+=====================================================================================================
+SALE DATE   GPU MODEL           REGION                      UNITS  MSRP (USD)   RATING  REVENUE (USD)
+-----------------------------------------------------------------------------------------------------
+2024-01-12  RTX 4090            Asia-Pacific (ex-China)         8     1599.00      4.0       14375.30
+2024-01-18  RTX 4070 Ti Super   Asia-Pacific (ex-China)        34      799.00      5.0       32799.82
+2024-01-20  RTX 4080 Super      North America                  30      999.00      4.0       39247.64
+2024-02-05  H100 SXM            Asia-Pacific (ex-China)         5    27000.00      4.5      146010.54
+2024-02-16  H100 SXM            Europe                          9    27000.00      4.5      250008.56
+2024-02-21  RTX 4080 Super      Asia-Pacific (ex-China)         8      999.00      4.5        9037.13
+2024-02-21  RTX 4070 Ti Super   North America                  21      799.00      5.0       16960.51
+2024-02-22  RTX 4070 Ti Super   China                          16      799.00      3.0       15423.23
+2024-02-22  RTX 4090            Asia-Pacific (ex-China)        21     1599.00      4.5       33780.23
+2024-02-25  H100 SXM            North America                   7    27000.00      4.0      297097.88
+2024-02-26  RTX 4080 Super      Rest of World                  28      999.00      5.0       35423.08
+2024-02-26  RTX 4070 Ti Super   North America                  48      799.00      4.5       39978.47
+2024-02-26  RTX 4080 Super      Rest of World                  26      999.00      4.0       30566.94
+2024-02-28  RTX 4070 Ti Super   Asia-Pacific (ex-China)        27      799.00      5.0       21895.31
+2024-03-01  RTX 4080 Super      Asia-Pacific (ex-China)        19      999.00      4.5       22802.41
+=====================================================================================================
+
+SUMMARY OF LOADED RECORDS
+-----------------------------------------------------------------------------------------------------
+Total units sold ................ 307
+Total revenue ................... $1005407.05
+Average satisfaction score ...... 4.40 / 5.0
+Highest revenue sale ............ H100 SXM in North America on 2024-02-25 ($297097.88)
+-----------------------------------------------------------------------------------------------------
+
+--- End of Module 7 ---
+
+
+
+
+#  MODULE 8 - STRUCTS, POINTERS, DYNAMIC ARRAYS, BINARY SEARCH
+
+
+Name:     Daisy Schall
+Course:   CIS 25 - C++ Programming
+Homework: Modules 7, 8, and 9
+Compiler: g++ (C++17), built with -Wall -Wextra, zero warnings
+
+Program:   Hospital Patient Management System
+Data file: patients.txt   (format: id|name|age|gender|diagnosis)
+
+REQUIREMENT CHECKLIST
+  [x] Step 1: struct Patient holding id, name, age, gender, diagnosis
+  [x] Step 2: dynamic array reached through a pointer
+              Patient* patients = new Patient[100];
+              with an int count tracking the number of stored records
+  [x] Step 3: six option menu
+  [x] Step 4: add a patient
+  [x] Step 5: display all patients
+  [x] Step 6: search by ID using binary search -> int binarySearch(...)
+  [x] Step 7: update patient information
+  [x] Step 8: save patients to file
+  [x] Option 6 prints "Good Bye!", closes the file objects, and calls delete[]
+  [x] Patients load from the file at startup whenever the file exists
+
+==============================================================================
+PART 1 OF 3:  CODE  (module8.cpp)
+==============================================================================
+
+// ============================================================================
+// MODULE 8: C++ BASICS - STRUCTS, POINTERS, DYNAMIC ARRAYS, BINARY SEARCH
+// Course: CIS 25
+// Name:   Daisy Schall
+//
+// Hospital Patient Management System
+//
+// Menu options required by the assignment:
+//   1. Add a patient
+//   2. Display all patients
+//   3. Search for a patient by ID (Binary Search)
+//   4. Update patient information
+//   5. Save patients to file
+//   6. Exit program  -> prints "Good Bye!" and releases memory
+//
+// On startup the program loads patients from patients.txt when that file
+// already exists.
+//
+// DATA FILE STRUCTURE (patients.txt)
+//   One patient per line, fields separated by the pipe character '|'
+//   id|name|age|gender|diagnosis
+//   The pipe is used instead of a comma so names and diagnoses may hold spaces.
+//
+// Compile: g++ -std=c++17 -Wall module8.cpp -o module8
+// Run:     ./module8
+// ============================================================================
+
+#include <iostream>
+#include <fstream>    // ifstream / ofstream for the patients.txt file
+#include <sstream>    // istringstream for splitting a saved line
+#include <string>
+#include <limits>     // numeric_limits, used to clear bad menu input
+#include <iomanip>    // setw / left for the display table
+using namespace std;
+
+// ----------------------------------------------------------------------------
+// STEP 1: struct that stores one patient record
+// ----------------------------------------------------------------------------
+struct Patient {
+    int    id;
+    string name;
+    int    age;
+    string gender;
+    string diagnosis;
+};
+
+// ----------------------------------------------------------------------------
+// Program constants
+// ----------------------------------------------------------------------------
+const int    CAPACITY  = 100;              // maximum patients the array can hold
+const string DATA_FILE = "patients.txt";   // external file used for persistence
+
+// ----------------------------------------------------------------------------
+// Keeps the array ordered by ascending id.
+// Binary search only works on sorted data, so this runs after every add,
+// after every load, and after any id change during an update.
+// Insertion sort is used since the record count stays small.
+// ----------------------------------------------------------------------------
+void sortByID(Patient* patients, int count) {
+    for (int i = 1; i < count; i++) {
+        Patient key = patients[i];          // record being placed
+        int j = i - 1;
+        while (j >= 0 && patients[j].id > key.id) {
+            patients[j + 1] = patients[j];  // shift larger ids one slot right
+            j--;
+        }
+        patients[j + 1] = key;
+    }
+}
+
+// ----------------------------------------------------------------------------
+// STEP 6: Binary search on the sorted dynamic array.
+// Returns the index of the matching patient, or -1 when no match exists.
+// Each pass halves the search window, giving O(log n) instead of O(n).
+// ----------------------------------------------------------------------------
+int binarySearch(Patient* patients, int size, int searchID) {
+    int left  = 0;
+    int right = size - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;   // midpoint, overflow safe
+
+        if (patients[mid].id == searchID) {
+            return mid;                        // found it
+        }
+        if (patients[mid].id < searchID) {
+            left = mid + 1;                    // target sits in the right half
+        } else {
+            right = mid - 1;                   // target sits in the left half
+        }
+    }
+    return -1;                                 // window collapsed, no match
+}
+
+// ----------------------------------------------------------------------------
+// Prints one patient as an aligned table row.
+// ----------------------------------------------------------------------------
+void printRow(const Patient& p) {
+    cout << left << setw(8)  << p.id
+         << left << setw(18) << p.name
+         << left << setw(7)  << p.age
+         << left << setw(10) << p.gender
+         << left << setw(24) << p.diagnosis
+         << endl;
+}
+
+// ----------------------------------------------------------------------------
+// STEP 4: Add a patient into the next free slot of the dynamic array.
+// ----------------------------------------------------------------------------
+void addPatient(Patient* patients, int& count) {
+    if (count >= CAPACITY) {
+        cout << "\nThe system is full. No more patients can be added.\n";
+        return;
+    }
+
+    Patient p;
+
+    cout << "\n--- Add a Patient ---\n";
+    cout << "Enter Patient ID: ";
+    cin  >> p.id;
+
+    // Reject a duplicate id, since binary search assumes unique keys.
+    if (binarySearch(patients, count, p.id) != -1) {
+        cout << "A patient with ID " << p.id << " already exists.\n";
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return;
+    }
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');  // drop the leftover newline
+    cout << "Enter Name: ";
+    getline(cin, p.name);
+
+    cout << "Enter Age: ";
+    cin  >> p.age;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    cout << "Enter Gender: ";
+    getline(cin, p.gender);
+
+    cout << "Enter Diagnosis: ";
+    getline(cin, p.diagnosis);
+
+    patients[count] = p;      // store at the end of the used region
+    count++;                  // one more record now lives in the array
+    sortByID(patients, count);
+
+    cout << "\nPatient added successfully!\n";
+}
+
+// ----------------------------------------------------------------------------
+// STEP 5: Display every stored patient.
+// ----------------------------------------------------------------------------
+void displayAllPatients(const Patient* patients, int count) {
+    cout << "\n--- All Patient Records ---\n";
+    if (count == 0) {
+        cout << "No patients on record.\n";
+        return;
+    }
+
+    cout << string(67, '-') << endl;
+    cout << left << setw(8)  << "ID"
+         << left << setw(18) << "NAME"
+         << left << setw(7)  << "AGE"
+         << left << setw(10) << "GENDER"
+         << left << setw(24) << "DIAGNOSIS" << endl;
+    cout << string(67, '-') << endl;
+
+    for (int i = 0; i < count; i++) {
+        printRow(patients[i]);
+    }
+    cout << string(67, '-') << endl;
+    cout << "Total patients: " << count << endl;
+}
+
+// ----------------------------------------------------------------------------
+// STEP 6 wrapper: ask for an id, run the binary search, report the result.
+// ----------------------------------------------------------------------------
+void searchPatient(Patient* patients, int count) {
+    cout << "\n--- Search Patient by ID (Binary Search) ---\n";
+    if (count == 0) {
+        cout << "No patients on record.\n";
+        return;
+    }
+
+    int searchID;
+    cout << "Enter Patient ID to search: ";
+    cin  >> searchID;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    int result = binarySearch(patients, count, searchID);
+
+    if (result != -1) {
+        cout << "\nPatient Found\n";
+        cout << "ID:        " << patients[result].id        << endl;
+        cout << "Name:      " << patients[result].name      << endl;
+        cout << "Age:       " << patients[result].age       << endl;
+        cout << "Gender:    " << patients[result].gender    << endl;
+        cout << "Diagnosis: " << patients[result].diagnosis << endl;
+    } else {
+        cout << "\nPatient not found\n";
+    }
+}
+
+// ----------------------------------------------------------------------------
+// STEP 7: Locate a patient with binary search, then overwrite their fields.
+// Pressing Enter on a prompt keeps the existing value.
+// ----------------------------------------------------------------------------
+void updatePatient(Patient* patients, int count) {
+    cout << "\n--- Update Patient Information ---\n";
+    if (count == 0) {
+        cout << "No patients on record.\n";
+        return;
+    }
+
+    int searchID;
+    cout << "Enter Patient ID to update: ";
+    cin  >> searchID;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    int index = binarySearch(patients, count, searchID);
+    if (index == -1) {
+        cout << "\nPatient not found\n";
+        return;
+    }
+
+    cout << "\nCurrent record:\n";
+    printRow(patients[index]);
+
+    string buffer;
+    cout << "\nEnter new Name (press Enter to keep \""
+         << patients[index].name << "\"): ";
+    getline(cin, buffer);
+    if (!buffer.empty()) patients[index].name = buffer;
+
+    cout << "Enter new Age (press Enter to keep " << patients[index].age << "): ";
+    getline(cin, buffer);
+    if (!buffer.empty()) patients[index].age = stoi(buffer);
+
+    cout << "Enter new Gender (press Enter to keep \""
+         << patients[index].gender << "\"): ";
+    getline(cin, buffer);
+    if (!buffer.empty()) patients[index].gender = buffer;
+
+    cout << "Enter new Diagnosis (press Enter to keep \""
+         << patients[index].diagnosis << "\"): ";
+    getline(cin, buffer);
+    if (!buffer.empty()) patients[index].diagnosis = buffer;
+
+    cout << "\nPatient record updated successfully!\n";
+}
+
+// ----------------------------------------------------------------------------
+// STEP 8: Write every patient to patients.txt using the pipe format.
+// ----------------------------------------------------------------------------
+void savePatients(const Patient* patients, int count) {
+    ofstream outFile(DATA_FILE);
+    if (!outFile) {
+        cout << "\nERROR: could not open " << DATA_FILE << " for writing.\n";
+        return;
+    }
+
+    for (int i = 0; i < count; i++) {
+        outFile << patients[i].id        << '|'
+                << patients[i].name      << '|'
+                << patients[i].age       << '|'
+                << patients[i].gender    << '|'
+                << patients[i].diagnosis << '\n';
+    }
+
+    outFile.close();   // flush and release the handle
+    cout << "\n" << count << " patient record(s) saved to " << DATA_FILE << "\n";
+}
+
+// ----------------------------------------------------------------------------
+// Startup load. A missing file is normal on a first run, so no error is shown.
+// ----------------------------------------------------------------------------
+void loadPatients(Patient* patients, int& count) {
+    ifstream inFile(DATA_FILE);
+    if (!inFile) {
+        cout << "No existing data file found. Starting with an empty system.\n";
+        return;
+    }
+
+    string line;
+    while (count < CAPACITY && getline(inFile, line)) {
+        if (line.empty()) continue;
+
+        istringstream ss(line);
+        string idText, ageText;
+        Patient p;
+
+        // Split the five pipe-delimited fields back into the struct.
+        getline(ss, idText,      '|');
+        getline(ss, p.name,      '|');
+        getline(ss, ageText,     '|');
+        getline(ss, p.gender,    '|');
+        getline(ss, p.diagnosis, '|');
+
+        if (idText.empty() || ageText.empty()) continue;   // skip malformed lines
+
+        p.id  = stoi(idText);
+        p.age = stoi(ageText);
+
+        patients[count] = p;
+        count++;
+    }
+
+    inFile.close();
+    sortByID(patients, count);   // guarantee the array is search-ready
+    cout << count << " patient record(s) loaded from " << DATA_FILE << "\n";
+}
+
+// ----------------------------------------------------------------------------
+// STEP 3: The menu
+// ----------------------------------------------------------------------------
+void showMenu() {
+    cout << "\n========================================\n";
+    cout << "   HOSPITAL PATIENT MANAGEMENT SYSTEM\n";
+    cout << "========================================\n";
+    cout << "1. Add a patient\n";
+    cout << "2. Display all patients\n";
+    cout << "3. Search for a patient by ID\n";
+    cout << "4. Update patient information\n";
+    cout << "5. Save patients to file\n";
+    cout << "6. Exit program\n";
+    cout << "----------------------------------------\n";
+    cout << "Enter your choice (1-6): ";
+}
+
+// ----------------------------------------------------------------------------
+// MAIN
+// ----------------------------------------------------------------------------
+int main() {
+    // STEP 2: dynamic array on the heap, reached through a Patient pointer.
+    Patient* patients = new Patient[CAPACITY];
+    int count = 0;                       // number of slots currently in use
+
+    cout << "Starting Hospital Patient Management System...\n";
+    loadPatients(patients, count);       // pull in saved records if they exist
+
+    int choice = 0;
+    do {
+        showMenu();
+
+        // Guard against letters or symbols typed at the menu prompt.
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "\nInvalid input. Please enter a number from 1 to 6.\n";
+            continue;
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+        switch (choice) {
+            case 1: addPatient(patients, count);        break;
+            case 2: displayAllPatients(patients, count); break;
+            case 3: searchPatient(patients, count);      break;
+            case 4: updatePatient(patients, count);      break;
+            case 5: savePatients(patients, count);       break;
+            case 6: cout << "\nGood Bye!\n";             break;
+            default:
+                cout << "\nInvalid choice. Please enter a number from 1 to 6.\n";
+        }
+    } while (choice != 6);
+
+    // Clean shutdown: hand the heap memory back and drop the dangling pointer.
+    delete[] patients;
+    patients = nullptr;
+
+    return 0;
+}
+
+==============================================================================
+PART 2 OF 3:  DATA FILE  (patients.txt)
+==============================================================================
+
+Contents BEFORE the run. These five records load automatically at startup:
+
+101|John Rivera|45|Male|Hypertension
+102|Sarah Lin|30|Female|Migraine
+103|Mike Alvarez|52|Male|Type 2 Diabetes
+104|Lisa Nguyen|28|Female|Asthma
+105|David Okonkwo|60|Male|Arrhythmia
+
+Contents AFTER the run. Menu option 5 wrote the added and the updated records:
+
+101|John Rivera|45|Male|Hypertension
+102|Sarah Lin-Carter|30|Female|Chronic migraine
+103|Mike Alvarez|52|Male|Type 2 Diabetes
+104|Lisa Nguyen|28|Female|Asthma
+105|David Okonkwo|60|Male|Arrhythmia
+106|Amara Okafor|34|Female|Post-op recovery
+
+==============================================================================
+PART 3 OF 3:  OUTPUT  (full terminal session)
+==============================================================================
+
+Menu options exercised in order:
+  2 display all               -> 3 search ID 103 (found)
+  3 search ID 999 (not found) -> 1 add patient 106
+  2 display all               -> 4 update patient 102
+  2 display all               -> 5 save to file
+  6 exit
+
+Starting Hospital Patient Management System...
+5 patient record(s) loaded from patients.txt
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 2
+
+--- All Patient Records ---
+-------------------------------------------------------------------
+ID      NAME              AGE    GENDER    DIAGNOSIS               
+-------------------------------------------------------------------
+101     John Rivera       45     Male      Hypertension            
+102     Sarah Lin         30     Female    Migraine                
+103     Mike Alvarez      52     Male      Type 2 Diabetes         
+104     Lisa Nguyen       28     Female    Asthma                  
+105     David Okonkwo     60     Male      Arrhythmia              
+-------------------------------------------------------------------
+Total patients: 5
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 3
+
+--- Search Patient by ID (Binary Search) ---
+Enter Patient ID to search: 103
+
+Patient Found
+ID:        103
+Name:      Mike Alvarez
+Age:       52
+Gender:    Male
+Diagnosis: Type 2 Diabetes
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 3
+
+--- Search Patient by ID (Binary Search) ---
+Enter Patient ID to search: 999
+
+Patient not found
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 1
+
+--- Add a Patient ---
+Enter Patient ID: 106
+Enter Name: Amara Okafor
+Enter Age: 34
+Enter Gender: Female
+Enter Diagnosis: Post-op recovery
+
+Patient added successfully!
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 2
+
+--- All Patient Records ---
+-------------------------------------------------------------------
+ID      NAME              AGE    GENDER    DIAGNOSIS               
+-------------------------------------------------------------------
+101     John Rivera       45     Male      Hypertension            
+102     Sarah Lin         30     Female    Migraine                
+103     Mike Alvarez      52     Male      Type 2 Diabetes         
+104     Lisa Nguyen       28     Female    Asthma                  
+105     David Okonkwo     60     Male      Arrhythmia              
+106     Amara Okafor      34     Female    Post-op recovery        
+-------------------------------------------------------------------
+Total patients: 6
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 4
+
+--- Update Patient Information ---
+Enter Patient ID to update: 102
+
+Current record:
+102     Sarah Lin         30     Female    Migraine                
+
+Enter new Name (press Enter to keep "Sarah Lin"): Sarah Lin-Carter
+Enter new Age (press Enter to keep 30): 
+Enter new Gender (press Enter to keep "Female"): Female
+Enter new Diagnosis (press Enter to keep "Migraine"): Chronic migraine
+
+Patient record updated successfully!
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 2
+
+--- All Patient Records ---
+-------------------------------------------------------------------
+ID      NAME              AGE    GENDER    DIAGNOSIS               
+-------------------------------------------------------------------
+101     John Rivera       45     Male      Hypertension            
+102     Sarah Lin-Carter  30     Female    Chronic migraine        
+103     Mike Alvarez      52     Male      Type 2 Diabetes         
+104     Lisa Nguyen       28     Female    Asthma                  
+105     David Okonkwo     60     Male      Arrhythmia              
+106     Amara Okafor      34     Female    Post-op recovery        
+-------------------------------------------------------------------
+Total patients: 6
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 5
+
+6 patient record(s) saved to patients.txt
+
+========================================
+   HOSPITAL PATIENT MANAGEMENT SYSTEM
+========================================
+1. Add a patient
+2. Display all patients
+3. Search for a patient by ID
+4. Update patient information
+5. Save patients to file
+6. Exit program
+----------------------------------------
+Enter your choice (1-6): 6
+
+Good Bye!
+
+--- End of Module 8 ---
+
+
+#  MODULE 9 - INHERITANCE, METHOD OVERRIDING, ACCESS CONTROL
+
+
+Name:     Daisy Schall
+Course:   CIS 25 - C++ Programming
+Homework: Modules 7, 8, and 9
+Compiler: g++ (C++17), built with -Wall -Wextra, zero warnings
+
+Program: Simple Role-Based Inventory System
+
+REQUIREMENT CHECKLIST
+  [x] 1. Base class User with the data member username
+  [x]    Method: virtual void accessLevel()
+  [x] 2. Derived classes Employee, Manager, and Admin all inherit from User
+  [x]    Each one overrides the accessLevel() method
+  [x] 3. Access levels displayed per role:
+           Employee -> View inventory
+           Manager  -> View and update inventory
+           Admin    -> Full access: add, update, delete inventory
+
+CONCEPTS DEMONSTRATED
+  Inheritance ......... class Employee : public User
+  Method Overriding ... void accessLevel() const override
+  Access Control ...... protected username
+  Class Hierarchy ..... User -> Employee / Manager / Admin
+  Polymorphism ........ array of User* pointers, dispatched at run time
+
+==============================================================================
+PART 1 OF 2:  CODE  (module9.cpp)
+==============================================================================
+
+// ============================================================================
+// MODULE 9: INHERITANCE, METHOD OVERRIDING, AND ACCESS CONTROL
+// Course: CIS 25
+// Name:   Daisy Schall
+//
+// Simple Role-Based Inventory System
+//
+// Class hierarchy:            User  (base class)
+//                              |
+//              +--------------+--------------+
+//              |              |              |
+//           Employee       Manager         Admin      (derived classes)
+//
+// Requirement mapping:
+//   1. Base Class ....... class User, data member username,
+//                         virtual void accessLevel()
+//   2. Derived Classes .. Employee, Manager, and Admin inherit from User
+//                         and each overrides accessLevel()
+//   3. Access Levels .... Employee -> View inventory
+//                         Manager  -> View and update inventory
+//                         Admin    -> Full access: add, update, delete inventory
+//
+// Concepts demonstrated:
+//   Inheritance ........ class Employee : public User
+//   Method Overriding .. void accessLevel() const override
+//   Access Control ..... protected username, reachable by the derived classes
+//                        but hidden from code outside the hierarchy
+//   Class Hierarchy .... User -> Employee / Manager / Admin
+//   Polymorphism ....... an array of User* pointers resolves every call to the
+//                        override that belongs to the real object
+//
+// Compile: g++ -std=c++17 -Wall module9.cpp -o module9
+// Run:     ./module9
+// ============================================================================
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+// ----------------------------------------------------------------------------
+// REQUIREMENT 1: BASE CLASS
+//
+// username sits under "protected" instead of "private" so Employee, Manager,
+// and Admin can reach it directly while outside code still cannot. Access
+// control in one keyword.
+// ----------------------------------------------------------------------------
+class User {
+protected:
+    string username;      // data member required by the assignment
+
+public:
+    // Constructor records the login name for whichever role is being built.
+    User(const string& name) : username(name) {}
+
+    // Returns the permission text for this role. Kept separate from printing
+    // so the same string can feed both accessLevel() and the summary table.
+    virtual string permissions() const {
+        return "General Access";
+    }
+
+    // The required virtual function. "virtual" is what lets a derived class
+    // replace the behavior when the object is reached through a User pointer.
+    virtual void accessLevel() const {
+        cout << permissions() << endl;
+    }
+
+    // Role label used by the output table.
+    virtual string roleName() const {
+        return "User";
+    }
+
+    string getUsername() const { return username; }
+
+    // A base class holding virtual functions needs a virtual destructor, so
+    // "delete basePointer" runs the matching derived destructor.
+    virtual ~User() {}
+};
+
+// ----------------------------------------------------------------------------
+// REQUIREMENT 2: DERIVED CLASSES
+//
+// Each inherits publicly from User and overrides accessLevel(). The "override"
+// keyword tells the compiler to verify the signature really matches the base.
+// ----------------------------------------------------------------------------
+
+// Derived from User. Lowest permission tier.
+class Employee : public User {
+public:
+    Employee(const string& name) : User(name) {}
+
+    string permissions() const override { return "View inventory"; }
+
+    void accessLevel() const override {          // method overriding
+        cout << permissions() << endl;
+    }
+
+    string roleName() const override { return "Employee"; }
+};
+
+// Derived from User. Everything an Employee can do, plus editing.
+class Manager : public User {
+public:
+    Manager(const string& name) : User(name) {}
+
+    string permissions() const override { return "View and update inventory"; }
+
+    void accessLevel() const override {          // method overriding
+        cout << permissions() << endl;
+    }
+
+    string roleName() const override { return "Manager"; }
+};
+
+// Derived from User. Unrestricted permissions.
+class Admin : public User {
+public:
+    Admin(const string& name) : User(name) {}
+
+    string permissions() const override {
+        return "Full access: add, update, delete inventory";
+    }
+
+    void accessLevel() const override {          // method overriding
+        cout << permissions() << endl;
+    }
+
+    string roleName() const override { return "Admin"; }
+};
+
+// ----------------------------------------------------------------------------
+// Helper: draws one horizontal border of the permissions table.
+// ----------------------------------------------------------------------------
+void printBorder() {
+    cout << "+--------------+---------------------------------------------+"
+         << endl;
+}
+
+// ----------------------------------------------------------------------------
+// MAIN
+// ----------------------------------------------------------------------------
+int main() {
+    cout << "===============================================================\n";
+    cout << "         ROLE-BASED INVENTORY SYSTEM   (CIS 25 Module 9)\n";
+    cout << "===============================================================\n\n";
+
+    // --- PART A: calls made directly on concrete objects --------------------
+    cout << "PART A: Direct calls on each object\n";
+    cout << "---------------------------------------------------------------\n";
+
+    User     generic("guest01");
+    Employee emp("dschall");
+    Manager  mgr("rgomez");
+    Admin    adm("root");
+
+    cout << left << setw(10) << "User"     << left << setw(11)
+         << generic.getUsername() << "-> ";
+    generic.accessLevel();
+
+    cout << left << setw(10) << "Employee" << left << setw(11)
+         << emp.getUsername()     << "-> ";
+    emp.accessLevel();
+
+    cout << left << setw(10) << "Manager"  << left << setw(11)
+         << mgr.getUsername()     << "-> ";
+    mgr.accessLevel();
+
+    cout << left << setw(10) << "Admin"    << left << setw(11)
+         << adm.getUsername()     << "-> ";
+    adm.accessLevel();
+
+    // --- PART B: polymorphism through base class pointers -------------------
+    // Every element is declared User*, yet each accessLevel() call runs the
+    // override belonging to the object actually stored in that slot.
+    cout << "\nPART B: Polymorphism through an array of User* pointers\n";
+    cout << "---------------------------------------------------------------\n";
+
+    const int STAFF_SIZE = 3;
+    User* staff[STAFF_SIZE];
+    staff[0] = new Employee("dschall");   // heap object, reached by a User*
+    staff[1] = new Manager("rgomez");
+    staff[2] = new Admin("root");
+
+    for (int i = 0; i < STAFF_SIZE; i++) {
+        string tag = "(" + staff[i]->getUsername() + ")";
+        cout << left << setw(10) << staff[i]->roleName()
+             << left << setw(12) << tag << "-> ";
+        staff[i]->accessLevel();          // resolved at run time
+    }
+
+    // --- PART C: the access level table from the assignment -----------------
+    cout << "\nPART C: Access Levels\n";
+    printBorder();
+    cout << "| " << left << setw(12) << "Role"
+         << " | " << left << setw(43) << "Permissions" << " |" << endl;
+    printBorder();
+    for (int i = 0; i < STAFF_SIZE; i++) {
+        cout << "| " << left << setw(12) << staff[i]->roleName()
+             << " | " << left << setw(43) << staff[i]->permissions()
+             << " |" << endl;
+    }
+    printBorder();
+
+    // Release every heap object. The virtual destructor in User guarantees the
+    // correct derived destructor runs for each pointer.
+    for (int i = 0; i < STAFF_SIZE; i++) {
+        delete staff[i];
+        staff[i] = nullptr;
+    }
+
+    cout << "\nProgram complete.\n";
+    return 0;
+}
+
+==============================================================================
+PART 2 OF 2:  OUTPUT
+==============================================================================
+
+===============================================================
+         ROLE-BASED INVENTORY SYSTEM   (CIS 25 Module 9)
+===============================================================
+
+PART A: Direct calls on each object
+---------------------------------------------------------------
+User      guest01    -> General Access
+Employee  dschall    -> View inventory
+Manager   rgomez     -> View and update inventory
+Admin     root       -> Full access: add, update, delete inventory
+
+PART B: Polymorphism through an array of User* pointers
+---------------------------------------------------------------
+Employee  (dschall)   -> View inventory
+Manager   (rgomez)    -> View and update inventory
+Admin     (root)      -> Full access: add, update, delete inventory
+
+PART C: Access Levels
++--------------+---------------------------------------------+
+| Role         | Permissions                                 |
++--------------+---------------------------------------------+
+| Employee     | View inventory                              |
+| Manager      | View and update inventory                   |
+| Admin        | Full access: add, update, delete inventory  |
++--------------+---------------------------------------------+
+
+Program complete.
+
+--- End of Module 9 ---
+
+
+#  END OF SUBMISSION
+
