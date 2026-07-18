@@ -1,0 +1,11 @@
+Hello Inventory System!
+
+--- Escape Character Demo ---
+Tab between columns:	Item	Qty	Cost
+New line after this sentence.
+A quote mark: " and a backslash: \
+
+--- Data Type Sizes ---
+Size of int:   4 bytes
+Size of float: 4 bytes
+Size of char:  1 bytes
