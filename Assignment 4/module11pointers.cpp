@@ -1,8 +1,8 @@
 // CIS 25 - Assignment 4, Module 11
 // C++ Basics: Pointers
-// Student: Daisy Schall
+// Daisy Schall
 // Program: Patient Application using a pointer that stores the
-//          address of a regular variable (no dynamic memory).
+// address of a regular variable (no dynamic memory).
 
 #include <iostream>
 #include <string>
