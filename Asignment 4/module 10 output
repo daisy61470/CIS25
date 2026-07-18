@@ -1,8 +1,0 @@
---- Program start ---
-Constructor called for product: Wireless Mouse
-ID: 2049, Name: Wireless Mouse, Price: $24.99
-Constructor called for product: USB-C Cable
-ID: 2050, Name: USB-C Cable, Price: $12.75
-Destructor called for product: USB-C Cable
---- Program end ---
-Destructor called for product: Wireless Mouse
