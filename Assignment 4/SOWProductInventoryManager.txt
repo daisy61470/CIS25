@@ -1,0 +1,44 @@
+Student Project: Scope of Work (SOW)
+
+Project Title: Product Inventory Manager
+Daisy Schall
+Date: July 17, 2026
+
+1. Project Overview
+
+The Product Inventory Manager is a C++ console application that helps a
+small business keep track of the products it sells. Users can add, view,
+search, update, and delete products through a simple menu, with each
+product storing an ID, name, quantity, and price. All inventory data is
+written to a text file (inventory.txt) and loaded back when the program
+starts, so the application uses long-term data storage and no records
+are lost between sessions.
+
+2. Features
+
+- Ability to add new products (ID, name, quantity, and price)
+- View a formatted list of every product currently in the inventory
+- Search for a product by ID or by name
+- Update a product's quantity or price when stock levels or costs change
+- Delete a product that is no longer sold
+- Automatic save to inventory.txt and automatic load at startup
+  (long-term data storage)
+- Input validation with clear error messages for bad entries
+- Low-stock warning that flags any product below a chosen quantity
+
+3. C++ Concepts and Data Storage
+
+- A Product class with private attributes, a constructor, a destructor,
+  and display methods (builds on Module 10)
+- Pointers used to reference and update product records in memory
+  (builds on Module 11)
+- A vector<Product> container to hold the inventory while the program runs
+- fstream (ifstream and ofstream) to read and write the inventory file,
+  giving the application its long-term data storage
+
+4. Plan to Complete
+
+- Step 1: Design the Product class and build the main menu loop
+- Step 2: Implement add, view, search, update, and delete features
+- Step 3: Add file save and load, input validation, and low-stock warnings,
+  then test every menu option and submit the final project
