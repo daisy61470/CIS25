@@ -1,0 +1,530 @@
+
+#  CIS 25 - HOMEWORK SUBMISSION
+#  Modules 4, 5 & 6  -  Code + Output
+#  Daisy Schall
+
+#  MODULE 4 - Debugging, If Statements
+
+
+-------------------- CODE: part1menu.cpp --------------------
+
+// ============================================================================
+// CIS 25 - Module 4, Part 1
+// Topic: Debugging, if-statements
+// Task : Build a simple menu using if statements.
+//
+// Design notes:
+//   * A single read of the option, validated with plain if / else-if chains
+//     (the construct this module teaches).
+//   * std::ios::sync_with_stdio(false) speeds up console I/O; the menu text is
+//     emitted in one streamed write to avoid repeated flushes.
+// ============================================================================
+#include <iostream>
+
+int main() {
+    std::ios::sync_with_stdio(false);   // faster, unbuffered-friendly console I/O
+
+    int choice = 0;
+
+    // One streamed write for the whole menu (fewer flushes than line-by-line).
+    std::cout << "===== MAIN MENU =====\n"
+                 "1. Say Hello\n"
+                 "2. Show Today's Special\n"
+                 "3. Show Store Hours\n"
+                 "4. Exit\n"
+                 "Choose an option: ";
+    std::cin >> choice;
+
+    // if / else-if chain: exactly one branch runs.
+    if (choice == 1) {
+        std::cout << "Hello, welcome to the shop!\n";
+    } else if (choice == 2) {
+        std::cout << "Today's special is fresh apple pie.\n";
+    } else if (choice == 3) {
+        std::cout << "We are open 9:00 AM to 6:00 PM.\n";
+    } else if (choice == 4) {
+        std::cout << "Goodbye!\n";
+    } else {
+        // Any value outside 1-4 (or bad input) lands here.
+        std::cout << "Invalid option. Please choose 1-4.\n";
+    }
+
+    return 0;
+}
+
+-------------------- CODE: part2highest.cpp --------------------
+
+
+//
+// Original buggy program (for reference):
+//   float n1 n2 n3,                       // no commas, stray trailing comma
+//   cin >> n1 > n1 > n3;                  // used > instead of >>, read n1 twice
+//   if(n1 = n2 && n1 >= n3)               // = (assignment) instead of ==
+//       cout << "Largest number: " << n1;
+//   if(n2 == n1 && n2 >= n3)              // separate ifs, not nested
+//   {   cout << "Largest number: " << n1; //   printed n1 in the n2 branch
+//   if(n3 >= n1 && n3 >= n2)
+//       cout << "Largest number: " << n2  // printed n2, missing semicolon
+//   }
+//
+// The nested form below finds the max in at most TWO comparisons.
+
+#include <iostream>
+
+int main() {
+    std::ios::sync_with_stdio(false);
+
+    // FIX: separate each variable with commas and drop the stray trailing comma
+    //      (original: "float n1 n2 n3,").
+    float n1, n2, n3;
+
+    std::cout << "Enter three numbers: ";
+
+    // FIX: use the extraction operator ">>" for every variable, and read into
+    //      n1, n2, n3 (original: "cin >> n1 > n1 > n3;" used ">" and read n1 twice).
+    std::cin >> n1 >> n2 >> n3;
+
+    // FIX: use "==" style comparison logic via nested ifs instead of "="
+    //      assignment (original: "if(n1 = n2 && n1 >= n3)").
+    if (n1 >= n2) {
+        // n1 is at least as big as n2; the winner is n1 or n3.
+        if (n1 >= n3) {
+            std::cout << "Largest number: " << n1 << '\n';
+        } else {
+            std::cout << "Largest number: " << n3 << '\n';
+        }
+    } else {
+        // n2 is bigger than n1; the winner is n2 or n3.
+        if (n2 >= n3) {
+            // FIX: print n2 here (original printed n1 inside the n2 branch).
+            std::cout << "Largest number: " << n2 << '\n';
+        } else {
+            // FIX: print n3 and terminate the statement with ";"
+            //      (original printed n2 and was missing its semicolon).
+            std::cout << "Largest number: " << n3 << '\n';
+        }
+    }
+
+    return 0;
+}
+
+-------------------- OUTPUT --------------------
+
+----- Part 1: Menu -----
+>> input: 1
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Hello, welcome to the shop!
+
+>> input: 2
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Today's special is fresh apple pie.
+
+>> input: 3
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: We are open 9:00 AM to 6:00 PM.
+
+>> input: 4
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Goodbye!
+
+>> input: 9
+===== MAIN MENU =====
+1. Say Hello
+2. Show Today's Special
+3. Show Store Hours
+4. Exit
+Choose an option: Invalid option. Please choose 1-4.
+
+----- Part 2: Highest of three (nested if) -----
+>> input: 3 9 5
+Enter three numbers: Largest number: 9
+
+>> input: 10 2 7
+Enter three numbers: Largest number: 10
+
+>> input: 1 2 8
+Enter three numbers: Largest number: 8
+
+>> input: 4 4 4
+Enter three numbers: Largest number: 4
+
+>> input: -5 -1 -9
+Enter three numbers: Largest number: -1
+
+
+
+
+#  MODULE 5 - Functions, Header Files and Loops
+
+
+-------------------- CODE: menu.h --------------------
+
+// ============================================================================
+// CIS 25 - Module 5: Functions, Header Files and Loops
+// menu.h - declarations only (the "interface").
+//
+// Header files store declarations so code can be split across multiple files.
+// The include guard below prevents this header from being pasted in twice.
+// ============================================================================
+#ifndef MENU_H
+#define MENU_H
+
+// Prints the menu of options to the screen.
+void showMenu();
+
+// Option 1: reads N and prints the running sum 1 + 2 + ... + N (uses a for loop).
+void runSum();
+
+// Option 2: reads N and prints its multiplication table 1..12 (uses a for loop).
+void runTimesTable();
+
+// Option 3: reads N and counts down N, N-1, ... , 1, "Liftoff!" (uses a while loop).
+void runCountdown();
+
+#endif // MENU_H
+
+-------------------- CODE: menu.cpp --------------------
+
+
+// CIS 25 - Module 5: Functions, Header Files and Loops
+// menu.cpp - definitions (the "implementation" of everything menu.h declares).
+
+#include "menu.h"
+#include <iostream>
+
+void showMenu() {
+    // One streamed write keeps the menu fast and flicker-free.
+    std::cout << "\n===== FUNCTION MENU =====\n"
+                 "1. Sum from 1 to N\n"
+                 "2. Multiplication table of N\n"
+                 "3. Countdown from N\n"
+                 "4. Exit\n"
+                 "Choose an option: ";
+}
+
+void runSum() {
+    int n;
+    std::cout << "Enter N: ";
+    std::cin >> n;
+
+    long long total = 0;                       // long long guards against overflow
+    for (int i = 1; i <= n; ++i) {             // for loop: count is known
+        total += i;
+    }
+    std::cout << "Sum from 1 to " << n << " = " << total << '\n';
+}
+
+void runTimesTable() {
+    int n;
+    std::cout << "Enter N: ";
+    std::cin >> n;
+
+    for (int i = 1; i <= 12; ++i) {            // for loop over a fixed range
+        std::cout << n << " x " << i << " = " << (n * i) << '\n';
+    }
+}
+
+void runCountdown() {
+    int n;
+    std::cout << "Enter N: ";
+    std::cin >> n;
+
+    while (n > 0) {                            // while loop: run while condition true
+        std::cout << n << ' ';
+        --n;
+    }
+    std::cout << "Liftoff!\n";
+}
+
+-------------------- CODE: main.cpp --------------------
+
+// ============================================================================
+// CIS 25 - Module 5: Functions, Header Files and Loops
+// main.cpp - drives the program.
+//
+// Requirements met:
+//   * A menu with at least three options.                 (four options below)
+//   * Each menu option calls a function that does something.
+//   * Header files are included (our own "menu.h" + standard <iostream>).
+//   * A loop keeps the menu running until the user chooses Exit.
+//
+// Build: g++ -std=c++17 -Wall main.cpp menu.cpp -o module5
+// ============================================================================
+#include "menu.h"
+#include <iostream>
+
+int main() {
+    std::ios::sync_with_stdio(false);
+
+    int option = 0;
+    do {                                       // do-while: menu shows at least once
+        showMenu();
+        std::cin >> option;
+
+        // Dispatch to the function for the chosen option.
+        if (option == 1) {
+            runSum();
+        } else if (option == 2) {
+            runTimesTable();
+        } else if (option == 3) {
+            runCountdown();
+        } else if (option == 4) {
+            std::cout << "Goodbye!\n";
+        } else {
+            std::cout << "Invalid option. Please choose 1-4.\n";
+        }
+    } while (option != 4);                      // loop until Exit is selected
+
+    return 0;
+}
+
+-------------------- OUTPUT --------------------
+
+>> option 1 (Sum,N=5) | option 2 (Table,N=3) | option 3 (Countdown,N=4) | option 4 (Exit)
+
+===== FUNCTION MENU =====
+1. Sum from 1 to N
+2. Multiplication table of N
+3. Countdown from N
+4. Exit
+Choose an option: Enter N: Sum from 1 to 5 = 15
+
+===== FUNCTION MENU =====
+1. Sum from 1 to N
+2. Multiplication table of N
+3. Countdown from N
+4. Exit
+Choose an option: Enter N: 3 x 1 = 3
+3 x 2 = 6
+3 x 3 = 9
+3 x 4 = 12
+3 x 5 = 15
+3 x 6 = 18
+3 x 7 = 21
+3 x 8 = 24
+3 x 9 = 27
+3 x 10 = 30
+3 x 11 = 33
+3 x 12 = 36
+
+===== FUNCTION MENU =====
+1. Sum from 1 to N
+2. Multiplication table of N
+3. Countdown from N
+4. Exit
+Choose an option: Enter N: 4 3 2 1 Liftoff!
+
+===== FUNCTION MENU =====
+1. Sum from 1 to N
+2. Multiplication table of N
+3. Countdown from N
+4. Exit
+Choose an option: Goodbye!
+
+
+
+#  MODULE 6 - Shopping Cart Program
+
+
+-------------------- CODE: Item.h --------------------
+
+// ============================================================================
+// CIS 25 - Module 6: Shopping Cart Program
+// Item.h - the Shopping Cart Item class (interface).
+//
+// Required by the assignment:
+//   Data members : string name, double price, int quantity
+//   Member func  : double getTotalPrice()  ->  price * quantity
+// ============================================================================
+#ifndef ITEM_H
+#define ITEM_H
+
+#include <string>
+
+class Item {
+public:
+    std::string name;   // item name
+    double price = 0.0; // price per unit
+    int quantity = 0;   // how many units
+
+    // Returns the line total for this item: price * quantity.
+    double getTotalPrice() const;
+};
+
+#endif // ITEM_H
+
+-------------------- CODE: Item.cpp --------------------
+
+// ============================================================================
+// CIS 25 - Module 6: Shopping Cart Program
+// Item.cpp - implementation of the Item class.
+// ============================================================================
+#include "Item.h"
+
+double Item::getTotalPrice() const {
+    return price * quantity;
+}
+
+-------------------- CODE: main.cpp --------------------
+
+// ============================================================================
+// CIS 25 - Module 6: Shopping Cart Program
+// main.cpp - text-based shopping cart driver.
+//
+// Requirements met:
+//   1. Item class with name/price/quantity and getTotalPrice()   (see Item.h)
+//   2. Menu loops until the user chooses Exit
+//   3. Option 1 adds an item and appends it to cart.txt as: name price quantity
+//   4. Option 2 reads cart.txt, prints each line total, and the grand total
+//   5. Option 3 prints "Thank you for shopping!" and exits cleanly
+//
+// Build: g++ -std=c++17 -Wall main.cpp Item.cpp -o module6
+// ============================================================================
+#include "Item.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+
+namespace {
+const char* const CART_FILE = "cart.txt";
+
+// Show the menu exactly as specified in the assignment.
+void showMenu() {
+    std::cout << "\n===== SHOPPING CART MENU =====\n"
+                 "1. Add item to cart\n"
+                 "2. View checkout\n"
+                 "3. Exit\n"
+                 "Choose an option: ";
+}
+
+// Option 1: read one item and append it to cart.txt.
+void addItem() {
+    Item item;
+
+    std::cout << "Enter item name: ";
+    std::cin >> item.name;                 // single-word name (matches "Apple" example)
+    std::cout << "Enter item price: ";
+    std::cin >> item.price;
+    std::cout << "Enter item quantity: ";
+    std::cin >> item.quantity;
+
+    // Append so items accumulate across the session. One line: name price quantity
+    std::ofstream out(CART_FILE, std::ios::app);
+    if (!out) {
+        std::cout << "Unable to open " << CART_FILE << " for writing.\n";
+        return;
+    }
+    out << item.name << ' ' << item.price << ' ' << item.quantity << '\n';
+    std::cout << "Item added to cart.\n";
+}
+
+// Option 2: read every item back from cart.txt and print the checkout summary.
+void viewCheckout() {
+    std::ifstream in(CART_FILE);
+    if (!in) {
+        std::cout << "Cart is empty.\n";
+        return;
+    }
+
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "\n===== CHECKOUT =====\n";
+
+    Item item;
+    double grandTotal = 0.0;
+    bool any = false;
+
+    // Streamed extraction stops cleanly at end-of-file.
+    while (in >> item.name >> item.price >> item.quantity) {
+        any = true;
+        double line = item.getTotalPrice();
+        grandTotal += line;
+        std::cout << item.name << " - $" << item.price
+                  << " x " << item.quantity
+                  << " = $" << line << '\n';
+    }
+
+    if (!any) {
+        std::cout << "Cart is empty.\n";
+        return;
+    }
+
+    std::cout << "---------------------\n";
+    std::cout << "Total: $" << grandTotal << '\n';
+}
+} // namespace
+
+int main() {
+    std::ios::sync_with_stdio(false);
+
+    int option = 0;
+    do {
+        showMenu();
+        if (!(std::cin >> option)) break;      // guard against bad/EOF input
+
+        if (option == 1) {
+            addItem();
+        } else if (option == 2) {
+            viewCheckout();
+        } else if (option == 3) {
+            std::cout << "Thank you for shopping!\n";
+        } else {
+            std::cout << "Invalid option. Please choose 1-3.\n";
+        }
+    } while (option != 3);                      // loop until Exit
+
+    return 0;                                   // objects go out of scope / files closed
+}
+
+-------------------- OUTPUT --------------------
+
+>> add Apple 1.25 x4 | add Bread 3.50 x1 | view checkout | exit
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: Enter item name: Enter item price: Enter item quantity: Item added to cart.
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: Enter item name: Enter item price: Enter item quantity: Item added to cart.
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: 
+===== CHECKOUT =====
+Apple - $1.25 x 4 = $5.00
+Bread - $3.50 x 1 = $3.50
+---------------------
+Total: $8.50
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: Thank you for shopping!
+
+----- Resulting cart.txt -----
+Apple 1.25 4
+Bread 3.5 1
