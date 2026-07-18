@@ -1,0 +1,279 @@
+
+MODULE 9 - INHERITANCE, METHOD OVERRIDING, ACCESS CONTROL
+
+
+Name:     Daisy Schall
+Course:   CIS 25 - C++ Programming
+Homework: Modules 7, 8, and 9
+Compiler: g++ (C++17), built with -Wall -Wextra, zero warnings
+
+Program: Simple Role-Based Inventory System
+
+REQUIREMENT CHECKLIST
+  [x] 1. Base class User with the data member username
+  [x]    Method: virtual void accessLevel()
+  [x] 2. Derived classes Employee, Manager, and Admin all inherit from User
+  [x]    Each one overrides the accessLevel() method
+  [x] 3. Access levels displayed per role:
+           Employee -> View inventory
+           Manager  -> View and update inventory
+           Admin    -> Full access: add, update, delete inventory
+
+CONCEPTS DEMONSTRATED
+  Inheritance ......... class Employee : public User
+  Method Overriding ... void accessLevel() const override
+  Access Control ...... protected username
+  Class Hierarchy ..... User -> Employee / Manager / Admin
+  Polymorphism ........ array of User* pointers, dispatched at run time
+
+==============================================================================
+PART 1 OF 2:  CODE  (module9.cpp)
+==============================================================================
+
+// ============================================================================
+// MODULE 9: INHERITANCE, METHOD OVERRIDING, AND ACCESS CONTROL
+// Course: CIS 25
+// Name:   Daisy Schall
+//
+// Simple Role-Based Inventory System
+//
+// Class hierarchy:            User  (base class)
+//                              |
+//              +--------------+--------------+
+//              |              |              |
+//           Employee       Manager         Admin      (derived classes)
+//
+// Requirement mapping:
+//   1. Base Class ....... class User, data member username,
+//                         virtual void accessLevel()
+//   2. Derived Classes .. Employee, Manager, and Admin inherit from User
+//                         and each overrides accessLevel()
+//   3. Access Levels .... Employee -> View inventory
+//                         Manager  -> View and update inventory
+//                         Admin    -> Full access: add, update, delete inventory
+//
+// Concepts demonstrated:
+//   Inheritance ........ class Employee : public User
+//   Method Overriding .. void accessLevel() const override
+//   Access Control ..... protected username, reachable by the derived classes
+//                        but hidden from code outside the hierarchy
+//   Class Hierarchy .... User -> Employee / Manager / Admin
+//   Polymorphism ....... an array of User* pointers resolves every call to the
+//                        override that belongs to the real object
+//
+// Compile: g++ -std=c++17 -Wall module9.cpp -o module9
+// Run:     ./module9
+// ============================================================================
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+// ----------------------------------------------------------------------------
+// REQUIREMENT 1: BASE CLASS
+//
+// username sits under "protected" instead of "private" so Employee, Manager,
+// and Admin can reach it directly while outside code still cannot. Access
+// control in one keyword.
+// ----------------------------------------------------------------------------
+class User {
+protected:
+    string username;      // data member required by the assignment
+
+public:
+    // Constructor records the login name for whichever role is being built.
+    User(const string& name) : username(name) {}
+
+    // Returns the permission text for this role. Kept separate from printing
+    // so the same string can feed both accessLevel() and the summary table.
+    virtual string permissions() const {
+        return "General Access";
+    }
+
+    // The required virtual function. "virtual" is what lets a derived class
+    // replace the behavior when the object is reached through a User pointer.
+    virtual void accessLevel() const {
+        cout << permissions() << endl;
+    }
+
+    // Role label used by the output table.
+    virtual string roleName() const {
+        return "User";
+    }
+
+    string getUsername() const { return username; }
+
+    // A base class holding virtual functions needs a virtual destructor, so
+    // "delete basePointer" runs the matching derived destructor.
+    virtual ~User() {}
+};
+
+// ----------------------------------------------------------------------------
+// REQUIREMENT 2: DERIVED CLASSES
+//
+// Each inherits publicly from User and overrides accessLevel(). The "override"
+// keyword tells the compiler to verify the signature really matches the base.
+// ----------------------------------------------------------------------------
+
+// Derived from User. Lowest permission tier.
+class Employee : public User {
+public:
+    Employee(const string& name) : User(name) {}
+
+    string permissions() const override { return "View inventory"; }
+
+    void accessLevel() const override {          // method overriding
+        cout << permissions() << endl;
+    }
+
+    string roleName() const override { return "Employee"; }
+};
+
+// Derived from User. Everything an Employee can do, plus editing.
+class Manager : public User {
+public:
+    Manager(const string& name) : User(name) {}
+
+    string permissions() const override { return "View and update inventory"; }
+
+    void accessLevel() const override {          // method overriding
+        cout << permissions() << endl;
+    }
+
+    string roleName() const override { return "Manager"; }
+};
+
+// Derived from User. Unrestricted permissions.
+class Admin : public User {
+public:
+    Admin(const string& name) : User(name) {}
+
+    string permissions() const override {
+        return "Full access: add, update, delete inventory";
+    }
+
+    void accessLevel() const override {          // method overriding
+        cout << permissions() << endl;
+    }
+
+    string roleName() const override { return "Admin"; }
+};
+
+// ----------------------------------------------------------------------------
+// Helper: draws one horizontal border of the permissions table.
+// ----------------------------------------------------------------------------
+void printBorder() {
+    cout << "+--------------+---------------------------------------------+"
+         << endl;
+}
+
+// ----------------------------------------------------------------------------
+// MAIN
+// ----------------------------------------------------------------------------
+int main() {
+    cout << "===============================================================\n";
+    cout << "         ROLE-BASED INVENTORY SYSTEM   (CIS 25 Module 9)\n";
+    cout << "===============================================================\n\n";
+
+    // --- PART A: calls made directly on concrete objects --------------------
+    cout << "PART A: Direct calls on each object\n";
+    cout << "---------------------------------------------------------------\n";
+
+    User     generic("guest01");
+    Employee emp("dschall");
+    Manager  mgr("rgomez");
+    Admin    adm("root");
+
+    cout << left << setw(10) << "User"     << left << setw(11)
+         << generic.getUsername() << "-> ";
+    generic.accessLevel();
+
+    cout << left << setw(10) << "Employee" << left << setw(11)
+         << emp.getUsername()     << "-> ";
+    emp.accessLevel();
+
+    cout << left << setw(10) << "Manager"  << left << setw(11)
+         << mgr.getUsername()     << "-> ";
+    mgr.accessLevel();
+
+    cout << left << setw(10) << "Admin"    << left << setw(11)
+         << adm.getUsername()     << "-> ";
+    adm.accessLevel();
+
+    // --- PART B: polymorphism through base class pointers -------------------
+    // Every element is declared User*, yet each accessLevel() call runs the
+    // override belonging to the object actually stored in that slot.
+    cout << "\nPART B: Polymorphism through an array of User* pointers\n";
+    cout << "---------------------------------------------------------------\n";
+
+    const int STAFF_SIZE = 3;
+    User* staff[STAFF_SIZE];
+    staff[0] = new Employee("dschall");   // heap object, reached by a User*
+    staff[1] = new Manager("rgomez");
+    staff[2] = new Admin("root");
+
+    for (int i = 0; i < STAFF_SIZE; i++) {
+        string tag = "(" + staff[i]->getUsername() + ")";
+        cout << left << setw(10) << staff[i]->roleName()
+             << left << setw(12) << tag << "-> ";
+        staff[i]->accessLevel();          // resolved at run time
+    }
+
+    // --- PART C: the access level table from the assignment -----------------
+    cout << "\nPART C: Access Levels\n";
+    printBorder();
+    cout << "| " << left << setw(12) << "Role"
+         << " | " << left << setw(43) << "Permissions" << " |" << endl;
+    printBorder();
+    for (int i = 0; i < STAFF_SIZE; i++) {
+        cout << "| " << left << setw(12) << staff[i]->roleName()
+             << " | " << left << setw(43) << staff[i]->permissions()
+             << " |" << endl;
+    }
+    printBorder();
+
+    // Release every heap object. The virtual destructor in User guarantees the
+    // correct derived destructor runs for each pointer.
+    for (int i = 0; i < STAFF_SIZE; i++) {
+        delete staff[i];
+        staff[i] = nullptr;
+    }
+
+    cout << "\nProgram complete.\n";
+    return 0;
+}
+
+==============================================================================
+PART 2 OF 2:  OUTPUT
+==============================================================================
+
+===============================================================
+         ROLE-BASED INVENTORY SYSTEM   (CIS 25 Module 9)
+===============================================================
+
+PART A: Direct calls on each object
+---------------------------------------------------------------
+User      guest01    -> General Access
+Employee  dschall    -> View inventory
+Manager   rgomez     -> View and update inventory
+Admin     root       -> Full access: add, update, delete inventory
+
+PART B: Polymorphism through an array of User* pointers
+---------------------------------------------------------------
+Employee  (dschall)   -> View inventory
+Manager   (rgomez)    -> View and update inventory
+Admin     (root)      -> Full access: add, update, delete inventory
+
+PART C: Access Levels
++--------------+---------------------------------------------+
+| Role         | Permissions                                 |
++--------------+---------------------------------------------+
+| Employee     | View inventory                              |
+| Manager      | View and update inventory                   |
+| Admin        | Full access: add, update, delete inventory  |
++--------------+---------------------------------------------+
+
+Program complete.
+
+End of Module 9
