@@ -1,0 +1,191 @@
+
+
+#  MODULE 6 - Shopping Cart Program
+
+
+-------------------- CODE: Item.h --------------------
+
+// ============================================================================
+// CIS 25 - Module 6: Shopping Cart Program
+// Item.h - the Shopping Cart Item class (interface).
+//
+// Required by the assignment:
+//   Data members : string name, double price, int quantity
+//   Member func  : double getTotalPrice()  ->  price * quantity
+// ============================================================================
+#ifndef ITEM_H
+#define ITEM_H
+
+#include <string>
+
+class Item {
+public:
+    std::string name;   // item name
+    double price = 0.0; // price per unit
+    int quantity = 0;   // how many units
+
+    // Returns the line total for this item: price * quantity.
+    double getTotalPrice() const;
+};
+
+#endif // ITEM_H
+
+-------------------- CODE: Item.cpp --------------------
+
+// ============================================================================
+// CIS 25 - Module 6: Shopping Cart Program
+// Item.cpp - implementation of the Item class.
+// ============================================================================
+#include "Item.h"
+
+double Item::getTotalPrice() const {
+    return price * quantity;
+}
+
+-------------------- CODE: main.cpp --------------------
+
+// ============================================================================
+// CIS 25 - Module 6: Shopping Cart Program
+// main.cpp - text-based shopping cart driver.
+//
+// Requirements met:
+//   1. Item class with name/price/quantity and getTotalPrice()   (see Item.h)
+//   2. Menu loops until the user chooses Exit
+//   3. Option 1 adds an item and appends it to cart.txt as: name price quantity
+//   4. Option 2 reads cart.txt, prints each line total, and the grand total
+//   5. Option 3 prints "Thank you for shopping!" and exits cleanly
+//
+// Build: g++ -std=c++17 -Wall main.cpp Item.cpp -o module6
+// ============================================================================
+#include "Item.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <string>
+
+namespace {
+const char* const CART_FILE = "cart.txt";
+
+// Show the menu exactly as specified in the assignment.
+void showMenu() {
+    std::cout << "\n===== SHOPPING CART MENU =====\n"
+                 "1. Add item to cart\n"
+                 "2. View checkout\n"
+                 "3. Exit\n"
+                 "Choose an option: ";
+}
+
+// Option 1: read one item and append it to cart.txt.
+void addItem() {
+    Item item;
+
+    std::cout << "Enter item name: ";
+    std::cin >> item.name;                 // single-word name (matches "Apple" example)
+    std::cout << "Enter item price: ";
+    std::cin >> item.price;
+    std::cout << "Enter item quantity: ";
+    std::cin >> item.quantity;
+
+    // Append so items accumulate across the session. One line: name price quantity
+    std::ofstream out(CART_FILE, std::ios::app);
+    if (!out) {
+        std::cout << "Unable to open " << CART_FILE << " for writing.\n";
+        return;
+    }
+    out << item.name << ' ' << item.price << ' ' << item.quantity << '\n';
+    std::cout << "Item added to cart.\n";
+}
+
+// Option 2: read every item back from cart.txt and print the checkout summary.
+void viewCheckout() {
+    std::ifstream in(CART_FILE);
+    if (!in) {
+        std::cout << "Cart is empty.\n";
+        return;
+    }
+
+    std::cout << std::fixed << std::setprecision(2);
+    std::cout << "\n===== CHECKOUT =====\n";
+
+    Item item;
+    double grandTotal = 0.0;
+    bool any = false;
+
+    // Streamed extraction stops cleanly at end-of-file.
+    while (in >> item.name >> item.price >> item.quantity) {
+        any = true;
+        double line = item.getTotalPrice();
+        grandTotal += line;
+        std::cout << item.name << " - $" << item.price
+                  << " x " << item.quantity
+                  << " = $" << line << '\n';
+    }
+
+    if (!any) {
+        std::cout << "Cart is empty.\n";
+        return;
+    }
+
+    std::cout << "---------------------\n";
+    std::cout << "Total: $" << grandTotal << '\n';
+}
+} // namespace
+
+int main() {
+    std::ios::sync_with_stdio(false);
+
+    int option = 0;
+    do {
+        showMenu();
+        if (!(std::cin >> option)) break;      // guard against bad/EOF input
+
+        if (option == 1) {
+            addItem();
+        } else if (option == 2) {
+            viewCheckout();
+        } else if (option == 3) {
+            std::cout << "Thank you for shopping!\n";
+        } else {
+            std::cout << "Invalid option. Please choose 1-3.\n";
+        }
+    } while (option != 3);                      // loop until Exit
+
+    return 0;                                   // objects go out of scope / files closed
+}
+
+-------------------- OUTPUT --------------------
+
+>> add Apple 1.25 x4 | add Bread 3.50 x1 | view checkout | exit
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: Enter item name: Enter item price: Enter item quantity: Item added to cart.
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: Enter item name: Enter item price: Enter item quantity: Item added to cart.
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: 
+===== CHECKOUT =====
+Apple - $1.25 x 4 = $5.00
+Bread - $3.50 x 1 = $3.50
+---------------------
+Total: $8.50
+
+===== SHOPPING CART MENU =====
+1. Add item to cart
+2. View checkout
+3. Exit
+Choose an option: Thank you for shopping!
+
+----- Resulting cart.txt -----
+Apple 1.25 4
+Bread 3.5 1
