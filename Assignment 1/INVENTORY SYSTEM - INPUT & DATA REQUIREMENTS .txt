@@ -1,0 +1,41 @@
+INVENTORY SYSTEM - INPUT & DATA REQUIREMENTS
+
+APPLICATION:
+A simple inventory management system. The user adds items, records
+quantity and unit cost for each, and the program reports the total
+cost per item and the overall value of the inventory.
+
+
+1. USER INPUT  (what users provide)
+
+   - Item name ............ text / string
+   - Quantity in stock .... whole number / int
+   - Unit cost ............ decimal / float
+   - (optional) category .. text / string
+   - (optional) reorder threshold ... int
+
+
+2. APPLICATION NEEDS  (what the app needs to run)
+
+   - A list/array of item records to store each entry
+   - Calculation logic: totalCost = quantity * unitCost
+   - A running total of overall inventory value
+   - A way to display the current inventory back to the user
+
+
+3. VENDOR / EXTERNAL INFORMATION  (if applicable)
+
+   - Vendor / supplier name for each item ... string
+   - Supplier contact (email or phone) ...... string
+   - Product or SKU code .................... string
+   - (optional) lead time in days .......... int
+   - (optional) minimum order quantity ..... int
+
+
+DATA TYPES SUMMARY
+
+   itemName    -> string
+   quantity    -> int
+   unitCost    -> float
+   vendorName  -> string
+   sku         -> string
