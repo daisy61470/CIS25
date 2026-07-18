@@ -1,6 +1,6 @@
 // CIS 25 - Assignment 4, Module 10
 // C++ Basics: Advanced Classes - Constructors and Destructors
-// Student: Daisy Schall
+// Daisy Schall
 // Program: Product class that shows how constructors and destructors
 //          manage the lifecycle of objects in C++.
 
