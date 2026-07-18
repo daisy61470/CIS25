@@ -1,0 +1,4 @@
+Enter item name: Widget
+Enter quantity: 5
+Enter cost: 2.50
+Total cost for Widget: $12.50
