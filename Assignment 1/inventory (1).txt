@@ -1,0 +1,23 @@
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    // cout prints to the screen; the line below prints the greeting
+    cout << "Hello Inventory System!\n";
+
+    // Demonstrate escape characters:
+    //   \n moves to a new line, \t inserts a tab
+    cout << "\n--- Escape Character Demo ---\n";
+    cout << "Tab between columns:\tItem\tQty\tCost\n";
+    cout << "New line after this sentence.\n";
+    cout << "A quote mark: \" and a backslash: \\\n";
+
+    // Output the sizes (in bytes) of common data types
+    cout << "\n--- Data Type Sizes ---\n";
+    cout << "Size of int:   " << sizeof(int)   << " bytes\n";
+    cout << "Size of float: " << sizeof(float) << " bytes\n";
+    cout << "Size of char:  " << sizeof(char)  << " bytes\n";
+
+    return 0;
+}
