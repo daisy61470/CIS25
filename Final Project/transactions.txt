@@ -1,0 +1,11 @@
+2026-07-25 08:35:28 | ADD    | Notebook (ID 101) qty 24 @ $3.49
+2026-07-25 08:35:28 | ADD    | Pens (Box of 12) (ID 102) qty 4 @ $5.99
+2026-07-25 08:35:28 | ADD    | Backpack (ID 103) qty 12 @ $24.99
+2026-07-25 08:35:29 | ADD    | Water Bottle (ID 104) qty 3 @ $9.75
+2026-07-25 08:35:29 | ADD    | Desk Lamp (ID 105) qty 8 @ $18.50
+2026-07-25 08:35:29 | ADD    | Stapler (ID 106) qty 15 @ $4.25
+2026-07-25 08:35:30 | UPDATE | Water Bottle (ID 104) qty 3 -> 20
+2026-07-25 08:35:30 | SALE   | 3 x Notebook (ID 101) = $10.47
+2026-07-25 08:35:31 | DELETE | Stapler (ID 106)
+2026-07-25 08:35:31 | DELETE | Backpack (ID 103)
+2026-07-25 08:35:31 | UNDO   | reversed the last change (deleted "Backpack")

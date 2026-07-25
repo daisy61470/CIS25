@@ -1,0 +1,5 @@
+101|Notebook|21|3.49
+102|Pens (Box of 12)|4|5.99
+104|Water Bottle|20|9.75
+105|Desk Lamp|8|18.50
+103|Backpack|12|24.99

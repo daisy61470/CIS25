@@ -1,0 +1,315 @@
+==================================================
+      PRODUCT INVENTORY MANAGER  v1.0
+      CIS 25 Final Project  |  Daisy Schall
+==================================================
+Loaded 6 product(s) from inventory.txt.
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 3
+
+--- SEARCH PRODUCTS ---
+ 1. Search by ID
+ 2. Search by name (partial matches count)
+Search how? (1-2): 2
+Name (or part of it): bottle
+ID    Name                       Qty      Price         Value
+-------------------------------------------------------------
+104   Water Bottle                 3       9.75         29.25   *LOW*
+1 match(es) found.
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 4
+
+--- UPDATE A PRODUCT ---
+ID of the product to update: 104
+Current details:
+ID    Name                       Qty      Price         Value
+-------------------------------------------------------------
+104   Water Bottle                 3       9.75         29.25   *LOW*
+ 1. Change quantity
+ 2. Change price
+ 3. Change both
+What would you like to change? (1-3): 1
+New quantity (0-100000): 20
+[OK] Updated and saved.
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 6
+
+--- SELL A PRODUCT ---
+ID of the product being sold: 101
+"Notebook" - 24 in stock at $3.49 each.
+How many are being sold? 3
+
++----------------------------------+
+|           SALE RECEIPT           |
++----------------------------------+
+  2026-07-25 08:35:30
+  Item : Notebook (ID 101)
+  Qty  : 3 @ $3.49 each
+  TOTAL: $10.47
+  Stock remaining: 21
++----------------------------------+
+     Thank you for your purchase!
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 7
+
+--- SORT PRODUCTS ---
+ 1. By name (A-Z)
+ 2. By price (low to high)
+ 3. By price (high to low)
+ 4. By quantity (low to high)
+Sort how? (1-4): 2
+
+--- CURRENT INVENTORY ---
+ID    Name                       Qty      Price         Value
+-------------------------------------------------------------
+101   Notebook                    21       3.49         73.29
+106   Stapler                     15       4.25         63.75
+102   Pens (Box of 12)             4       5.99         23.96   *LOW*
+104   Water Bottle                20       9.75        195.00
+105   Desk Lamp                    8      18.50        148.00
+103   Backpack                    12      24.99        299.88
+-------------------------------------------------------------
+6 product(s) | Total inventory value: $803.88
+(*LOW* = 5 or fewer in stock)
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 8
+
+--- REPORTS & CHART ---
+ 1. Low stock & restock list
+ 2. Inventory value report
+ 3. Sales summary
+ 4. Stock level chart
+Which report? (1-4): 1
+
+--- LOW STOCK & RESTOCK LIST ---
+Flag products at or below what stock level? (suggested 5): 5
+ID    Name                     Stock   Suggested order
+------------------------------------------------------
+102   Pens (Box of 12)             4                 6
+1 product(s) need restocking (suggestion brings each back to 10).
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 8
+
+--- REPORTS & CHART ---
+ 1. Low stock & restock list
+ 2. Inventory value report
+ 3. Sales summary
+ 4. Stock level chart
+Which report? (1-4): 2
+
+--- INVENTORY VALUE REPORT ---
+ID    Name                       Qty      Price         Value
+-------------------------------------------------------------
+101   Notebook                    21       3.49         73.29
+106   Stapler                     15       4.25         63.75
+102   Pens (Box of 12)             4       5.99         23.96   *LOW*
+104   Water Bottle                20       9.75        195.00
+105   Desk Lamp                    8      18.50        148.00
+103   Backpack                    12      24.99        299.88
+-------------------------------------------------------------
+TOTAL INVENTORY VALUE: $803.88
+Most valuable stock: "Backpack" at $299.88
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 8
+
+--- REPORTS & CHART ---
+ 1. Low stock & restock list
+ 2. Inventory value report
+ 3. Sales summary
+ 4. Stock level chart
+Which report? (1-4): 3
+
+--- SALES SUMMARY ---
+Date/Time            Product                  Qty       Total
+-------------------------------------------------------------
+2026-07-25 08:35:30  Notebook                   3       10.47
+-------------------------------------------------------------
+1 sale(s) | TOTAL REVENUE: $10.47
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (6 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 5
+
+--- DELETE A PRODUCT ---
+ID of the product to delete: 106
+ID    Name                       Qty      Price         Value
+-------------------------------------------------------------
+106   Stapler                     15       4.25         63.75
+Really delete this product? (y/n): y
+[OK] "Stapler" deleted. 5 product(s) left.
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (5 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 9
+
+--- TRANSACTION HISTORY ---
+2026-07-25 08:35:28 | ADD    | Notebook (ID 101) qty 24 @ $3.49
+2026-07-25 08:35:28 | ADD    | Pens (Box of 12) (ID 102) qty 4 @ $5.99
+2026-07-25 08:35:28 | ADD    | Backpack (ID 103) qty 12 @ $24.99
+2026-07-25 08:35:29 | ADD    | Water Bottle (ID 104) qty 3 @ $9.75
+2026-07-25 08:35:29 | ADD    | Desk Lamp (ID 105) qty 8 @ $18.50
+2026-07-25 08:35:29 | ADD    | Stapler (ID 106) qty 15 @ $4.25
+2026-07-25 08:35:30 | UPDATE | Water Bottle (ID 104) qty 3 -> 20
+2026-07-25 08:35:30 | SALE   | 3 x Notebook (ID 101) = $10.47
+2026-07-25 08:35:31 | DELETE | Stapler (ID 106)
+----------------------------------------
+9 event(s) recorded in transactions.txt
+
+==================================================
+           PRODUCT INVENTORY MANAGER
+           (5 product(s) on file)
+==================================================
+  1. Add a product
+  2. View all products
+  3. Search products
+  4. Update a product
+  5. Delete a product
+  6. Sell a product (prints a receipt)
+  7. Sort products
+  8. Reports & stock chart
+  9. Transaction history
+ 10. Undo last change
+ 11. Save and exit
+==================================================
+Choose an option (1-11): 11
+
+Everything is saved in inventory.txt. See you next time!
