@@ -1,7 +1,7 @@
 # Product Inventory Manager
 
-**CIS 25 — C++ Programming | Final Project (Assignment 5: Build Your Own Application)**
-**Author: Daisy Schall**
+**CIS 25 C++ Programming | Final Project (Assignment 5: Build Your Own Application)**
+**Daisy Schall**
 
 A menu-driven C++ console application that manages a small business's product
 inventory. Products are kept in long-term storage, so everything is still there
