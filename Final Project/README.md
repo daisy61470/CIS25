@@ -1,7 +1,7 @@
 # Product Inventory Manager
 
-**CIS 25 C++ Programming | Final Project (Assignment 5: Build Your Own Application)**
-**Daisy Schall**
+**CIS 25 - C++ Programming | Final Project (Assignment 5: Build Your Own Application)**
+**Author: Daisy Schall**
 
 A menu-driven C++ console application that manages a small business's product
 inventory. Products are kept in long-term storage, so everything is still there
@@ -40,16 +40,16 @@ Works with any C++17 compiler (g++, clang++, OnlineGDB).
 | File | What it is |
 |------|------------|
 | `InventoryManager.cpp` | Full source code |
-| `inventory.txt` | Saved inventory (sample data included) — `id\|name\|qty\|price` |
+| `inventory.txt` | Saved inventory (sample data included), format: `id\|name\|qty\|price` |
 | `transactions.txt` | Timestamped log of every change |
-| `sales.txt` | Sales record — `timestamp\|id\|name\|qty\|total` |
-| `sample_run.txt` | Transcript of a real session showing the features |
+| `sales.txt` | Sales record, format: `timestamp\|id\|name\|qty\|total` |
+| `samplerun.txt` | Transcript of a real session showing the features |
 
 ## Course concepts used
 
 - Class with constructor / destructor, getters and setters (Module 10)
 - Pointers for record lookup (Module 11)
-- Vectors, functions, loops (Modules 4–9)
+- Vectors, functions, loops (Modules 4-9)
 - File streams (`ifstream` / `ofstream`) for persistent storage
 - Input validation with `stringstream`
 - `std::sort` with custom comparison functions
